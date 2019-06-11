@@ -1,0 +1,133 @@
+Sub Stock_Market()
+
+'Titles for the Summary Table & Min/Max Table
+Cells(1, "I").Value = "Ticker"
+Cells(1, "J").Value = "Yearly Change"
+Cells(1, "K").Value = "Percent Change"
+Cells(1, "L").Value = "Total Stock Volume"
+Cells(1, "P").Value = "Ticker"
+Cells(1, "Q").Value = "Value"
+Cells(2, "O").Value = "Greatest % Increse"
+Cells(3, "O").Value = "Greatest % Decrese"
+Cells(4, "O").Value = "Greatest Trade Volume"
+
+' Ticker, Open, Close, and %Change Variables
+Dim Ticker As String
+Dim Open_Price As Double
+Dim Close_Price As Double
+Dim Total_Change As Double
+Dim Percent_Change As Double
+
+' Trade Volume Variable
+Dim Trade_Volume As Double
+Trade_Volume = 0
+
+' Variables for Row (start row 2) and Column (start column 1
+Dim Row As Integer
+Dim Column As Integer
+Row = 2
+Column = 1
+
+'i Variable for the For Loop
+Dim i As Long
+
+'Open Price on 1st day of year
+Open_Price = Cells(Row, Column + 2).Value
+
+'Loop through all Ticker symbols
+For i = 2 To 797711
+
+'Check if still same Ticker
+If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+
+'Set the Ticker
+Ticker = Cells(i, Column).Value
+Cells(Row, Column + 8).Value = Ticker
+
+'Set Close Price on last day of year
+Close_Price = Cells(i, Column + 5).Value
+    
+'Add Total Change over the year
+Total_Change = Close_Price - Open_Price
+Cells(Row, Column + 9).Value = Total_Change
+
+'Add Percent Change over the year
+        If (Open_Price = 0 And Close_Price = 0) Then
+            Percent_Change = 0
+        ElseIf (Open_Price = 0 And Close_Price <> 0) Then
+            Percent_Change = 1
+        Else
+            Percent_Change = Total_Change / Open_Price
+            Cells(Row, Column + 10).Value = Percent_Change
+            Cells(Row, Column + 10).NumberFormat = "0.00%"
+        End If
+        
+'Add the Trade Volume
+    Trade_Volume = Trade_Volume + Cells(i, Column + 6).Value
+
+'Print the Ticker in the Summary Table
+    Range("I" & Row).Value = Ticker
+
+'Print the Trade Volume to the Summary Table
+    Range("L" & Row).Value = Trade_Volume
+
+'Add one to the Summary Table
+    Row = Row + 1
+    
+'Create the Open Price for the new Ticker
+    Open_Price = Cells(i + 1, Column + 2)
+
+'Create the Trade Volume Total for the new Ticker
+    Trade_Volume = 0
+
+'If the cell immediately following a row is the same Ticker
+    Else
+
+'Add to the Trade Volume total for that Ticker
+    Trade_Volume = Trade_Volume + Cells(i, 7).Value
+    
+End If
+
+Next i
+
+'j Variable for the For Loop
+Dim j As Long
+
+'Loop through all Ticker symbols in the Summary Table
+For j = 2 To 3169
+
+'Assigning Conditional Formatting
+If (Cells(j, Column + 9).Value > 0 Or Cells(j, Column + 9).Value = 0) Then
+    Cells(j, Column + 9).Interior.ColorIndex = 4
+ElseIf Cells(j, Column + 9).Value < 0 Then
+    Cells(j, Column + 9).Interior.ColorIndex = 3
+End If
+Next j
+
+'k Variable for the For Loop
+Dim k As Long
+
+'Loop through all Ticker symbols in the Summary Table
+For k = 2 To 3169
+
+'Max calc for greatest % increase
+If Cells(k, Column + 10).Value = Application.WorksheetFunction.Max(Range("K2:K3169")) Then
+ Cells(2, Column + 15).Value = Cells(k, Column + 8).Value
+ Cells(2, Column + 16).Value = Cells(k, Column + 10).Value
+ Cells(2, Columm + 16).NumberFormat = "0.00%"
+ 
+'Min calc for greatest % decrease
+ElseIf Cells(k, Column + 10).Value = Application.WorksheetFunction.Min(Range("K2:K3169")) Then
+ Cells(3, Column + 15).Value = Cells(k, Column + 8).Value
+ Cells(3, Column + 16).Value = Cells(k, Column + 10).Value
+ Cells(3, Columm + 16).NumberFormat = "0.00%"
+
+'Max calc for trade volume
+ElseIf Cells(k, Column + 11).Value = Application.WorksheetFunction.Max(Range("L2:L3169")) Then
+ Cells(4, Column + 15).Value = Cells(k, Column + 8).Value
+ Cells(4, Column + 16).Value = Cells(k, Column + 11).Value
+ Cells(4, Column + 16).NumberFormat = "000,000"
+End If
+Next k
+
+End Sub
